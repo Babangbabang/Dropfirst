@@ -1,0 +1,17 @@
+{
+  "name": "Dropfirst",
+  "version": "0.1.0",
+  "description": "Pay-as-you-can-afford dining tabs secured by PayPal authorize/capture, with an AI agent that proposes orders within the authorized limit.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  }
+}

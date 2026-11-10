@@ -1,0 +1,18 @@
+# Dependencies (reinstalled from package.json via `npm install`)
+node_modules/
+
+# Secrets — never commit real credentials
+.env
+
+# Local SQLite database (dev data; on Render this lives on the persistent disk instead)
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

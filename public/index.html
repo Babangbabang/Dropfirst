@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dropfirst — pay as you can afford</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14213D;
+    --ink-soft:#5A6A7A;
+    --accent:#E8590C;
+    --accent-dark:#C44A08;
+    --bg:#F1F3F8;
+    --card:#FFFFFF;
+    --line:#E2E8F0;
+    --success:#10B981;
+    --success-dark:#059669;
+    --danger:#DC2626;
+    --danger-dark:#B91C1C;
+    --radius:16px;
+    --shadow-sm:0 1px 3px rgba(20,33,61,.06);
+    --shadow-md:0 4px 16px rgba(20,33,61,.08);
+    --shadow-lg:0 20px 50px rgba(20,33,61,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding:32px 20px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+
+  /* ============ HEADER ============ */
+  header{margin-bottom:32px}
+  .brand{
+    display:flex;align-items:center;gap:12px;
+    font-size:32px;font-weight:800;letter-spacing:-.5px;
+  }
+  .brand-mark{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),#FF8C42);
+    display:grid;place-items:center;
+    font-size:22px;
+    box-shadow:0 4px 12px rgba(232,89,12,.35);
+  }
+  .sub{color:var(--ink-soft);margin-top:8px;font-size:15px}
+
+  /* ============ CARDS ============ */
+  section{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:28px;
+    margin-bottom:20px;
+    box-shadow:var(--shadow-sm);
+    border:1px solid var(--line);
+    transition:box-shadow .2s;
+  }
+  section:hover{box-shadow:var(--shadow-md)}
+  h2{
+    font-size:17px;font-weight:700;
+    margin-bottom:16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  h3.block-label{
+    font-size:13px;font-weight:700;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.04em;
+    margin:20px 0 8px;
+  }
+  .step-num{
+    display:inline-grid;place-items:center;
+    width:28px;height:28px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    font-size:13px;font-weight:700;
+  }
+
+  /* ============ FORM ============ */
+  .hold-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  input[type="number"]{
+    font:600 18px 'Inter';
+    padding:12px 16px;
+    border:2px solid var(--line);
+    border-radius:12px;
+    width:140px;
+    color:var(--ink);
+    transition:border-color .2s;
+  }
+  input[type="number"]:focus{
+    outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 4px rgba(232,89,12,.1);
+  }
+  .currency-tag{
+    font-weight:700;color:var(--ink-soft);
+    background:var(--bg);padding:8px 14px;border-radius:10px;
+    font-size:14px;
+  }
+
+  /* ============ BUTTONS ============ */
+  button{
+    font:600 15px 'Inter';
+    padding:12px 22px;
+    border-radius:12px;
+    border:none;
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+    transition:all .2s;
+    box-shadow:0 2px 8px rgba(232,89,12,.25);
+  }
+  button:hover:not(:disabled){background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,89,12,.35)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  button.ghost{
+    background:transparent;color:var(--ink);
+    border:2px solid var(--line);box-shadow:none;
+  }
+  button.ghost:hover:not(:disabled){background:var(--bg);border-color:var(--ink-soft);transform:none;box-shadow:none}
+  button.success{
+    background:var(--success);
+    box-shadow:0 2px 8px rgba(16,185,129,.3);
+  }
+  button.success:hover:not(:disabled){background:var(--success-dark);box-shadow:0 4px 14px rgba(16,185,129,.4)}
+  button.danger{
+    background:var(--danger);
+    box-shadow:0 2px 8px rgba(220,38,38,.3);
+  }
+  button.danger:hover:not(:disabled){background:var(--danger-dark);box-shadow:0 4px 14px rgba(220,38,38,.4)}
+
+  /* ============ BUDGET DISPLAY ============ */
+  .budget-wrap{
+    display:flex;align-items:baseline;gap:8px;
+    padding:16px 20px;background:var(--bg);border-radius:12px;
+    margin-bottom:20px;
+  }
+  .budget-label{font-size:13px;color:var(--ink-soft);font-weight:500}
+  .budget{font-size:28px;font-weight:800;letter-spacing:-.5px}
+  .budget.low{color:var(--accent)}
+  .pill{
+    font-size:12px;font-weight:600;
+    background:var(--bg);padding:4px 12px;border-radius:999px;
+    color:var(--ink-soft);
+  }
+
+  /* ============ MENU / ORDER-LIST ITEMS ============ */
+  .menu-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .menu-item:last-child{border-bottom:none}
+  .menu-item strong{font-size:15px;display:block;margin-bottom:4px}
+  .menu-item .desc{font-size:13px;color:var(--ink-soft)}
+  .menu-item button{
+    padding:8px 18px;font-size:14px;
+    flex-shrink:0;
+  }
+  #order-list{margin-bottom:16px}
+
+  /* ============ TEXTAREA ============ */
+  textarea{
+    width:100%;min-height:70px;
+    font:15px 'Inter';padding:14px;
+    border:2px solid var(--line);border-radius:12px;
+    resize:vertical;transition:border-color .2s;
+    color:var(--ink);
+  }
+  textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(232,89,12,.1)}
+
+  /* ============ LOG ============ */
+  .log{
+    font-size:13px;color:var(--ink-soft);
+    white-space:pre-wrap;margin-top:12px;
+    padding:12px 16px;background:var(--bg);border-radius:10px;
+    min-height:20px;
+  }
+  .log:empty{display:none}
+
+  /* ============ PAYPAL ============ */
+  #paypal-buttons{max-width:320px;margin-top:16px;border-radius:12px;overflow:hidden}
+
+  /* ============ MODAL ============ */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(20,33,61,.55);
+    backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;z-index:1000;
+    animation:fadeIn .2s ease;
+  }
+  .modal-overlay.active{display:flex}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .modal{
+    background:#fff;border-radius:20px;
+    padding:32px;max-width:440px;width:100%;
+    box-shadow:var(--shadow-lg);
+    animation:slideUp .25s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .modal-icon{
+    width:64px;height:64px;border-radius:50%;
+    display:grid;place-items:center;margin:0 auto 20px;
+    font-size:32px;
+    background:linear-gradient(135deg,#FEF3C7,#FDE68A);
+  }
+  .modal-icon.warn{background:linear-gradient(135deg,#FEE2E2,#FECACA)}
+  .modal h3{font-size:22px;font-weight:800;text-align:center;margin-bottom:8px}
+  .modal p{text-align:center;color:var(--ink-soft);font-size:15px;margin-bottom:8px}
+  .modal-summary{
+    background:var(--bg);border-radius:12px;
+    padding:16px 20px;margin:20px 0;
+  }
+  .modal-summary-row{
+    display:flex;justify-content:space-between;
+    padding:6px 0;font-size:14px;
+  }
+  .modal-summary-row.total{
+    border-top:2px solid var(--line);
+    margin-top:8px;padding-top:14px;
+    font-weight:800;font-size:17px;
+  }
+  .modal-actions{display:flex;gap:12px;margin-top:8px}
+  .modal-actions button{flex:1}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:600px){
+    body{padding:20px 12px}
+    section{padding:20px}
+    .brand{font-size:26px}
+    .hold-row{flex-wrap:wrap}
+    .modal{padding:24px}
+  }
+  .budget-chart-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(20,33,61,.06);
+}
+
+/* ============ UPFRONT FEES BOX ============ */
+.upfront-fees-box {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.upfront-fees-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #FEF3C7;
+  border-bottom: 1px solid #FDE68A;
+  font-weight: 600;
+  color: #92400E;
+}
+
+.upfront-fees-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.upfront-fees-title {
+  flex: 1;
+  font-size: 13px;
+}
+
+.upfront-fees-total {
+  font-size: 12px;
+  font-weight: 700;
+  color: #B45309;
+  background: #FDE68A;
+  padding: 2px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.upfront-fees-list {
+  padding: 4px 0;
+}
+
+.upfront-fee-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #FEF3C7;
+}
+
+.upfront-fee-row:last-child {
+  border-bottom: none;
+}
+
+.upfront-fee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.upfront-fee-label {
+  font-weight: 600;
+  color: #78350F;
+  font-size: 13px;
+}
+
+.upfront-fee-desc {
+  font-size: 11.5px;
+  color: #92400E;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.upfront-fee-amount {
+  font-weight: 700;
+  color: #B45309;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+/* Top-up button disabled state */
+#topup-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: #ccc;
+  color: #666;
+  border-color: #ccc;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="brand-mark">🍜</span>
+      <span>Dropfirst</span>
+    </div>
+    <p class="sub">Hold funds with PayPal, order up to that limit, pay the real bill when you're done.</p>
+  </header>
+
+  <section id="step-hold">
+    <h2><span class="step-num">1</span>Hold a budget</h2>
+    <p style="margin-bottom:16px;color:var(--ink-soft)">How much are you comfortable authorizing right now?</p>
+    <div id="upfront-fees" style="margin-bottom:16px"></div>
+    <div class="hold-row">
+      <input id="hold-amount" type="number" value="30" min="1" step="1">
+      <span class="currency-tag" id="hold-currency">USD</span>
+    </div>
+    <div class="hold-row">
+      <input id="initial-table-id" type="text" placeholder="Table number (optional)" style="width:200px">
+    </div>
+    <div id="paypal-buttons"></div>
+    <p class="log" id="hold-log"></p>
+  </section>
+
+  <section id="step-order" style="display:none">
+    <h2><span class="step-num">2</span>Order within your budget</h2>
+    <p class="log" id="resume-banner" style="display:none;background:#FEF3C7;color:#92400E">
+      ↩️ Resuming a previously open tab — the funds you authorized are still held.
+    </p>
+
+    <div id="table-id-block" style="margin-bottom:16px"></div>
+  <!-- ========================================== -->
+  <!-- REMAINING BUDGET CHART -->
+  <!-- ========================================== -->
+  <div class="budget-chart-wrapper">
+    <div style="position: relative; height: 260px;">
+      <canvas id="budget-chart"></canvas>
+    </div>
+  </div>
+
+    <div class="budget-wrap">
+      <span class="budget-label">Remaining budget</span>
+      <span class="budget" id="remaining">—</span>
+    </div>
+    <div id="menu"></div>
+
+    <h3 class="block-label">Cart (not yet locked)</h3>
+    <div id="cart-list"></div>
+    <button id="lock-cart-btn" class="success" style="margin-top:8px" disabled>🔒 Continue — lock this order</button>
+    <p class="log" id="cart-log"></p>
+
+    <h3 class="block-label">Locked orders</h3>
+    <div id="order-list"></div>
+
+    <button class="ghost" id="topup-btn">＋ Add more funds</button>
+  </section>
+
+  <section id="step-agent" style="display:none">
+    <h2><span class="step-num">✨</span>Let the AI agent order for you</h2>
+    <textarea id="agent-request" placeholder="e.g. lunch for 2, no spicy, I like peanut sauce"></textarea>
+    <div style="margin-top:12px">
+      <button id="agent-btn">Ask the agent</button>
+    </div>
+    <div id="agent-result"></div>
+  </section>
+
+  <section id="step-close" style="display:none">
+    <h2><span class="step-num">3</span>Close the tab</h2>
+    <p style="margin-bottom:16px">Ordered so far: <strong id="ordered-total">—</strong></p>
+
+    <button id="close-btn" class="success">✅ Finish eating — pay the bill</button>
+    <button id="retry-close-btn" class="ghost" style="display:none;margin-left:8px">🔄 Retry — complete payment</button>
+    <p class="log" id="close-log"></p>
+    <button id="download-invoice-btn" class="ghost" style="display:none;margin-top:12px">📄 Download Invoice</button>
+
+    <h3 class="block-label">Changed your mind?</h3>
+    <p style="color:var(--ink-soft);font-size:14px;margin-bottom:12px">
+      Cancel the tab and release all held funds — nothing will be charged.
+    </p>
+    <button id="cancel-btn" class="danger">Cancel &amp; release funds</button>
+    <button id="retry-release-btn" class="ghost" style="display:none;margin-left:8px">🔄 Retry release</button>
+    <p class="log" id="cancel-log"></p>
+  </section>
+</div>
+
+<!-- ============================================
+     PAYMENT CONFIRMATION MODAL
+     ============================================ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <div class="modal-icon">🧾</div>
+    <h3>Confirm Payment</h3>
+    <p>Are you sure you want to close the tab and pay the bill?</p>
+
+    <div class="modal-summary" id="modal-summary"></div>
+
+    <div class="modal-actions">
+      <button class="ghost" onclick="closeConfirmModal()">Cancel</button>
+      <button class="success" onclick="confirmClose()">Yes, Pay</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     CANCEL CONFIRMATION MODAL
+     ============================================ -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="modal">
+    <div class="modal-icon warn">⚠️</div>
+    <h3>Cancel Tab?</h3>
+    <p>All held funds will be released back to you. Orders that have been added will be cancelled.</p>
+
+    <div class="modal-summary" id="cancel-modal-summary"></div>
+
+    <div class="modal-actions">
+      <button class="ghost" onclick="closeCancelModal()">No, continue</button>
+      <button class="danger" onclick="confirmCancel()">Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Chart.js for doughnut chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/decimal.js@10.4.3/decimal.min.js"></script>
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

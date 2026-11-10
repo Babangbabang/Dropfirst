@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dropfirst — Restaurant Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14213D; --ink-soft:#5A6A7A; --accent:#E8590C; --accent-dark:#C44A08;
+    --bg:#F1F3F8; --card:#FFFFFF; --line:#E2E8F0; --success:#10B981; --success-dark:#059669;
+    --radius:16px; --shadow-sm:0 1px 3px rgba(20,33,61,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);padding:32px 20px;line-height:1.6}
+  .wrap{max-width:560px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:4px}
+  .brand-mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#FF8C42);display:grid;place-items:center;font-size:18px}
+  .sub{color:var(--ink-soft);margin-bottom:24px;font-size:14px}
+  .warn{background:#FEF3C7;color:#92400E;border-radius:12px;padding:12px 16px;font-size:13px;margin-bottom:24px}
+  section{background:var(--card);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+  h2{font-size:16px;font-weight:700;margin-bottom:6px}
+  .desc{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+  .field{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+  .field:last-child{border-bottom:none}
+  .field label{font-size:14px;font-weight:600}
+  .field .hint{font-size:12px;color:var(--ink-soft);font-weight:400;display:block;margin-top:2px}
+  input[type="number"],input[type="text"]{
+    font:600 15px 'Inter';padding:9px 12px;border:2px solid var(--line);border-radius:10px;width:140px;color:var(--ink);
+  }
+  input[type="text"]{width:220px}
+  input:focus{outline:none;border-color:var(--accent)}
+  .switch{position:relative;width:46px;height:26px;flex-shrink:0}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch .track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:.2s}
+  .switch .thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .switch input:checked + .track{background:var(--success)}
+  .switch input:checked + .track .thumb{transform:translateX(20px)}
+  button{font:600 15px 'Inter';padding:12px 22px;border-radius:12px;border:none;background:var(--accent);color:#fff;cursor:pointer;width:100%}
+  button:hover{background:var(--accent-dark)}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .log{font-size:13px;color:var(--ink-soft);margin-top:12px;padding:10px 14px;background:var(--bg);border-radius:10px;min-height:18px}
+  .log:empty{display:none}
+  .log.ok{color:var(--success-dark)}
+  .log.err{color:#DC2626}
+
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .section-head h2{margin-bottom:0}
+  .ghost-btn{width:auto;padding:8px 14px;font-size:13px;background:transparent;color:var(--ink);border:2px solid var(--line)}
+  .ghost-btn:hover{background:var(--bg)}
+  .order-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .order-card-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .order-card-head strong{font-size:15px}
+  .order-card-head .hint{font-size:12px;color:var(--ink-soft)}
+  .order-item-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);gap:12px}
+  .order-item-row:first-of-type{border-top:none}
+  .order-item-row strong{font-size:14px;font-weight:600}
+  .order-item-row .hint{font-size:12px;color:var(--ink-soft);display:block;margin-top:2px}
+  .reject-btn{width:auto;padding:6px 12px;font-size:12px;background:transparent;color:#DC2626;border:2px solid #FECACA;flex-shrink:0}
+  .reject-btn:hover{background:#FEF2F2}
+
+  .menu-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .menu-form input{font:500 14px 'Inter';padding:9px 12px;border:2px solid var(--line);border-radius:10px;color:var(--ink);width:100%}
+  .menu-form button{grid-column:1/-1;width:auto;justify-self:start;padding:10px 20px}
+  .menu-row{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:opacity .2s}
+  .menu-row.inactive{opacity:.5}
+  .menu-row .m-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .menu-row input[type="text"],.menu-row input[type="number"]{
+    width:100%;font:500 14px 'Inter';padding:8px 10px;border:2px solid var(--line);border-radius:8px;color:var(--ink);
+  }
+  .menu-row .m-desc{width:100%;margin-bottom:8px}
+  .menu-row-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+  .menu-row-foot label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer}
+  .menu-row-foot .ghost-btn{padding:8px 16px}
+  .fee-row{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:opacity .2s}
+  .fee-row.inactive{opacity:.5}
+  .fee-row .f-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .fee-row input[type="text"],.fee-row input[type="number"]{
+    width:100%;font:500 14px 'Inter';padding:8px 10px;border:2px solid var(--line);border-radius:8px;color:var(--ink);
+  }
+  .fee-row .f-desc{width:100%;margin-bottom:8px}
+  .danger-btn{background:transparent;color:#DC2626;border:2px solid #FECACA;width:auto;padding:8px 14px;font-size:13px}
+  .danger-btn:hover{background:#FEF2F2}
+  .approve-btn{background:transparent;color:var(--success-dark);border:2px solid #A7F3D0;width:auto;padding:8px 16px;font-size:13px}
+  .approve-btn:hover{background:#ECFDF5}
+  .advice-box{background:var(--bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13px}
+  .advice-box .rec{font-weight:700;margin-bottom:2px}
+  .advice-box .hint{display:block;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="brand-mark">🍜</span><span>Dropfirst — Dashboard</span></div>
+  <p class="sub">These settings apply to the entire restaurant, not per table.</p>
+
+  <p class="warn">
+    ⚠️ This page has no login protection yet. Anyone who knows the URL can change settings.
+    Add authentication before using it outside of a local demo.
+  </p>
+
+  <section>
+    <div class="section-head">
+      <h2>Active Orders</h2>
+      <button class="ghost-btn" id="refresh-orders-btn">🔄 Refresh</button>
+    </div>
+    <p class="desc">Tabs that are still open, along with the menu items the buyer selected. Auto-reloads every 20 seconds.</p>
+    <div id="orders-list"><p class="log">Loading…</p></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Cancellation Requests</h2>
+      <button class="ghost-btn" id="refresh-cancel-btn">🔄 Refresh</button>
+    </div>
+    <p class="desc">
+      Appears when a buyer requests cancellation after items are locked. The 🤖 note is only a suggestion — the decision remains with staff.
+      If not responded to within the time limit (see settings below), it is automatically <strong>denied</strong>.
+    </p>
+    <div id="cancel-requests-list"><p class="log">Loading…</p></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Manage Menu</h2>
+      <button class="ghost-btn" id="refresh-menu-btn">🔄 Refresh</button>
+    </div>
+    <p class="desc">Ingredients and tags are comma-separated, e.g. "rice, egg, shrimp". Deactivating a menu item hides it from the buyer app but does not delete past order history.</p>
+
+    <div class="menu-form">
+      <input id="menu-name" type="text" placeholder="Menu name">
+      <input id="menu-price" type="number" min="0" step="0.01" placeholder="Price">
+      <input id="menu-desc" type="text" placeholder="Short description" style="grid-column:1/-1">
+      <input id="menu-tags" type="text" placeholder="Tags (e.g. spicy, rice)">
+      <input id="menu-ingredients" type="text" placeholder="Ingredients (e.g. rice, egg)">
+      <button id="menu-add-btn">+ Add Menu</button>
+    </div>
+    <p class="log" id="menu-form-log"></p>
+
+    <div id="menu-list"><p class="log">Loading…</p></div>
+  </section>
+
+  <section>
+    <h2>Menu cancellation</h2>
+    <p class="desc">When locked, buyers cannot remove menu items they have already selected and locked (the "−1" / "✕" buttons are hidden).</p>
+    <div class="field">
+      <div><label for="cancel_locked">Lock menu cancellation</label><span class="hint">Buyers cannot cancel locked orders</span></div>
+      <label class="switch"><input type="checkbox" id="cancel_locked"><span class="track"><span class="thumb"></span></span></label>
+    </div>
+    <div class="field">
+      <div>
+        <label for="cancel_timeout">Tab cancellation approval time limit</label>
+        <span class="hint">If a buyer requests cancellation of the entire tab after items are locked, staff have this much time to approve/deny before it is automatically denied</span>
+      </div>
+      <input type="number" id="cancel_timeout" min="1" step="1" style="width:90px">
+    </div>
+  </section>
+
+  <section>
+    <h2>Table number / identifier</h2>
+    <p class="desc">If not editable, buyers can only fill it in once — after that it is locked until the tab is closed.</p>
+    <div class="field">
+      <div><label for="table_id_editable">Editable by buyer</label><span class="hint">Turn off to lock the table number after it is set once</span></div>
+      <label class="switch"><input type="checkbox" id="table_id_editable"><span class="track"><span class="thumb"></span></span></label>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Extra Fees</h2>
+      <button class="ghost-btn" id="refresh-fees-btn">🔄 Refresh</button>
+    </div>
+    <p class="desc">
+      Can be more than one (e.g. service charge + packaging fee), each with its own description
+      shown to the buyer before they pay. Charged on top of the order total when the tab is closed —
+      does not reduce the budget while the buyer is ordering. Currency: <span id="currency-label">USD</span>.
+    </p>
+
+    <div class="menu-form">
+      <input id="fee-label" type="text" placeholder="Label (e.g. Service charge)">
+      <input id="fee-amount" type="number" min="0" step="0.01" placeholder="Amount">
+      <input id="fee-desc" type="text" placeholder="Description for buyer (optional)" style="grid-column:1/-1">
+      <button id="fee-add-btn">+ Add Fee</button>
+    </div>
+    <p class="log" id="fee-form-log"></p>
+
+    <div id="fees-list"><p class="log">Loading…</p></div>
+  </section>
+
+  <button id="save-btn">Save Settings</button>
+  <p class="log" id="save-log"></p>
+</div>
+
+<script>
+const cents = (c) => (c / 100).toFixed(2);
+const toCents = (v) => Math.round(Number(v || 0) * 100);
+
+async function api(path, options = {}) {
+  const res = await fetch(`/api${path}`, { headers: { 'Content-Type': 'application/json' }, ...options });
+  const raw = await res.text();
+  let data;
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    const routeFile = path.replace(/^\//, '').split(/[/?]/)[0] || 'settings';
+    const hint = res.status === 404
+      ? `Endpoint /api${path} not found (404). Check that routes/${routeFile}.js has this route AND that server.js has ` +
+        `"app.use('/api', require('./routes/${routeFile}'))" — then restart the server (changes to server.js need a restart).`
+      : `Server returned a non-JSON response (HTTP ${res.status}). Check the server terminal.`;
+    throw Object.assign(new Error(hint), { data: { error: hint, raw } });
+  }
+  if (!res.ok) throw Object.assign(new Error(data.error || 'Request failed'), { data });
+  return data;
+}
+
+let currency = 'USD';
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function load() {
+  const [settings, config] = await Promise.all([api('/settings'), api('/config')]);
+  currency = config.currency || 'USD';
+  document.getElementById('currency-label').textContent = currency;
+  document.getElementById('cancel_locked').checked = !!settings.cancel_locked;
+  document.getElementById('table_id_editable').checked = !!settings.table_id_editable;
+  document.getElementById('cancel_timeout').value = settings.cancel_approval_timeout_minutes || 15;
+}
+
+document.getElementById('save-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('save-btn');
+  const logEl = document.getElementById('save-log');
+  logEl.className = 'log';
+  logEl.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    await api('/settings', {
+      method: 'PUT',
+      body: JSON.stringify({
+        cancel_locked: document.getElementById('cancel_locked').checked,
+        table_id_editable: document.getElementById('table_id_editable').checked,
+        cancel_approval_timeout_minutes: Number(document.getElementById('cancel_timeout').value) || 15,
+      }),
+    });
+    logEl.className = 'log ok';
+    logEl.textContent = '✅ Saved. Applies to both currently running and new tabs.';
+  } catch (e) {
+    logEl.className = 'log err';
+    logEl.textContent = '❌ ' + (e.data?.error || e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+load().catch((e) => {
+  document.getElementById('save-log').className = 'log err';
+  document.getElementById('save-log').textContent = '❌ Failed to load settings: ' + e.message;
+});
+
+// ==========================================
+// LIVE ORDERS — view + reject one item
+// ==========================================
+function renderOrderCard(summary) {
+  const t = summary.tab;
+  const label = t.table_identifier ? `Table ${escapeHtml(t.table_identifier)}` : `Tab #${t.id.slice(0, 8)}`;
+  const totalAuthorized = summary.authorized_cents + summary.captured_cents;
+
+  const rows = summary.items.length
+    ? summary.items
+        .map((it) => {
+          if (it.rejected) {
+            return `
+              <div class="order-item-row">
+                <div>
+                  <strong style="text-decoration:line-through;opacity:.6">${it.quantity}× ${escapeHtml(it.name)}</strong>
+                  <span class="hint" style="color:#DC2626">Rejected: ${escapeHtml(it.reject_reason || '')}</span>
+                </div>
+              </div>`;
+          }
+          return `
+            <div class="order-item-row">
+              <div>
+                <strong>${it.quantity}× ${escapeHtml(it.name)}</strong>
+                <span class="hint">${cents(it.price_cents * it.quantity)} ${currency}</span>
+              </div>
+              <button class="reject-btn" data-reject data-tab="${t.id}" data-item="${it.id}" data-name="${escapeHtml(it.name)}">❌ Reject</button>
+            </div>`;
+        })
+        .join('')
+    : '<p class="log">No items selected yet.</p>';
+
+  return `
+    <div class="order-card">
+      <div class="order-card-head">
+        <strong>${label}</strong>
+        <span class="hint">${cents(summary.ordered_cents)} / ${cents(totalAuthorized)} ${currency} held</span>
+      </div>
+      ${rows}
+      <div class="menu-row-foot" style="margin-top:10px">
+        <button class="danger-btn" data-staff-cancel data-tab="${t.id}">🗑️ Cancel order</button>
+      </div>
+    </div>`;
+}
+
+async function loadOrders() {
+  const container = document.getElementById('orders-list');
+  try {
+    const { tabs } = await api('/tabs?status=open');
+    if (tabs.length === 0) {
+      container.innerHTML = '<p class="log">No open tabs at the moment.</p>';
+      return;
+    }
+    container.innerHTML = tabs.map(renderOrderCard).join('');
+    container.querySelectorAll('[data-reject]').forEach((btn) => {
+      btn.addEventListener('click', () =>
+        rejectItem(btn.dataset.tab, btn.dataset.item, btn.dataset.name)
+      );
+    });
+    container.querySelectorAll('[data-staff-cancel]').forEach((btn) => {
+      btn.addEventListener('click', () => staffCancelOrder(btn.dataset.tab, btn));
+    });
+  } catch (e) {
+    container.innerHTML = `<p class="log err">❌ ${escapeHtml(e.data?.error || e.message)}</p>`;
+  }
+}
+
+/**
+ * Staff-initiated cancel: no approval step needed (staff clicking this IS
+ * the approval), unlike the buyer-facing pending-cancel flow. Immediately
+ * voids all held funds and removes the order from this active list.
+ */
+async function staffCancelOrder(tabIdVal, btn) {
+  if (!confirm('Cancel this order? All held funds will be released back to the buyer immediately.')) return;
+  btn.disabled = true;
+  try {
+    const result = await api(`/tabs/${tabIdVal}/staff-cancel`, { method: 'POST' });
+    if (result.failed && result.failed.length > 0) {
+      alert(
+        `${result.released.length} hold(s) released, but ${result.failed.length} failed to release. ` +
+        `Try again — it's safe to retry.`
+      );
+    }
+    loadOrders();
+  } catch (e) {
+    alert(e.data?.error || e.message);
+    btn.disabled = false;
+  }
+}
+
+async function rejectItem(tabIdVal, itemId, name) {
+  const reason = prompt(`Reason for rejecting "${name}"? (e.g. out of stock)`, '');
+  if (!reason || !reason.trim()) return;
+  try {
+    await api(`/tabs/${tabIdVal}/items/${itemId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason.trim() }),
+    });
+    loadOrders();
+  } catch (e) {
+    alert(e.data?.error || e.message);
+  }
+}
+
+document.getElementById('refresh-orders-btn').addEventListener('click', loadOrders);
+loadOrders();
+setInterval(loadOrders, 20000);
+
+// ==========================================
+// CANCELLATION REQUESTS (pending_cancel tabs)
+// ==========================================
+function renderCancelRequestCard(summary) {
+  const t = summary.tab;
+  const label = t.table_identifier ? `Table ${escapeHtml(t.table_identifier)}` : `Tab #${t.id.slice(0, 8)}`;
+  const advice = summary.cancel_advice;
+
+  const adviceHtml = advice
+    ? `<div class="advice-box">
+         <div class="rec">🤖 Suggestion: ${escapeHtml(advice.recommendation)}</div>
+         <span class="hint">${escapeHtml(advice.reason)}</span>
+         <span class="hint" style="color:var(--ink-soft)">${escapeHtml(advice.summary)}</span>
+       </div>`
+    : '';
+
+  return `
+    <div class="order-card">
+      <div class="order-card-head">
+        <strong>${label}</strong>
+        <span class="hint">${cents(summary.total_due_cents)} ${currency} held</span>
+      </div>
+      ${adviceHtml}
+      <div class="menu-row-foot">
+        <button class="danger-btn" data-deny data-tab="${t.id}">❌ Deny</button>
+        <button class="approve-btn" data-approve data-tab="${t.id}">✅ Approve</button>
+      </div>
+    </div>`;
+}
+
+async function loadCancelRequests() {
+  const container = document.getElementById('cancel-requests-list');
+  try {
+    const { tabs } = await api('/tabs?status=pending_cancel');
+    container.innerHTML = tabs.length
+      ? tabs.map(renderCancelRequestCard).join('')
+      : '<p class="log">No cancellation requests at the moment.</p>';
+
+    container.querySelectorAll('[data-approve]').forEach((btn) => {
+      btn.addEventListener('click', () => approveCancel(btn.dataset.tab, btn));
+    });
+    container.querySelectorAll('[data-deny]').forEach((btn) => {
+      btn.addEventListener('click', () => denyCancel(btn.dataset.tab));
+    });
+  } catch (e) {
+    container.innerHTML = `<p class="log err">❌ ${escapeHtml(e.data?.error || e.message)}</p>`;
+  }
+}
+
+async function approveCancel(tabIdVal, btn) {
+  if (!confirm('Approve this cancellation? All held funds will be released to the buyer.')) return;
+  btn.disabled = true;
+  try {
+    await api(`/tabs/${tabIdVal}/cancel/approve`, { method: 'POST' });
+    loadCancelRequests();
+  } catch (e) {
+    alert(e.data?.error || e.message);
+    btn.disabled = false;
+  }
+}
+
+async function denyCancel(tabIdVal) {
+  const reason = prompt('Reason for denying this cancellation request?', 'Order already processed by kitchen');
+  if (!reason || !reason.trim()) return;
+  try {
+    await api(`/tabs/${tabIdVal}/cancel/deny`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason.trim() }),
+    });
+    loadCancelRequests();
+  } catch (e) {
+    alert(e.data?.error || e.message);
+  }
+}
+
+document.getElementById('refresh-cancel-btn').addEventListener('click', loadCancelRequests);
+loadCancelRequests();
+setInterval(loadCancelRequests, 15000);
+
+// ==========================================
+// MENU MANAGEMENT
+// ==========================================
+function renderMenuRow(item) {
+  return `
+    <div class="menu-row ${item.active ? '' : 'inactive'}" data-menu-id="${item.id}">
+      <div class="m-grid">
+        <input class="m-name" type="text" value="${escapeHtml(item.name)}" placeholder="Menu name">
+        <input class="m-price" type="number" min="0" step="0.01" value="${cents(item.price_cents)}" placeholder="Price">
+      </div>
+      <input class="m-desc" type="text" value="${escapeHtml(item.description || '')}" placeholder="Description">
+      <div class="m-grid">
+        <input class="m-tags" type="text" value="${escapeHtml(item.tags.join(', '))}" placeholder="Tags (comma separated)">
+        <input class="m-ingredients" type="text" value="${escapeHtml(item.ingredients.join(', '))}" placeholder="Ingredients (comma separated)">
+      </div>
+      <div class="menu-row-foot">
+        <label>
+          <span class="switch"><input type="checkbox" class="m-active" ${item.active ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
+          Active
+        </label>
+        <button class="ghost-btn m-save">💾 Save</button>
+      </div>
+    </div>`;
+}
+
+function wireMenuRowEvents() {
+  document.querySelectorAll('.menu-row').forEach((rowEl) => {
+    const id = rowEl.dataset.menuId;
+    const saveBtn = rowEl.querySelector('.m-save');
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      try {
+        await api(`/menu/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: rowEl.querySelector('.m-name').value.trim(),
+            price_cents: toCents(rowEl.querySelector('.m-price').value),
+            description: rowEl.querySelector('.m-desc').value.trim(),
+            tags: rowEl.querySelector('.m-tags').value,
+            ingredients: rowEl.querySelector('.m-ingredients').value,
+            active: rowEl.querySelector('.m-active').checked,
+          }),
+        });
+        loadMenu();
+      } catch (e) {
+        alert(e.data?.error || e.message);
+        saveBtn.disabled = false;
+      }
+    });
+  });
+}
+
+async function loadMenu() {
+  const container = document.getElementById('menu-list');
+  try {
+    const { items } = await api('/menu/all');
+    container.innerHTML = items.length
+      ? items.map(renderMenuRow).join('')
+      : '<p class="log">No menu items yet. Add them using the form above.</p>';
+    wireMenuRowEvents();
+  } catch (e) {
+    container.innerHTML = `<p class="log err">❌ ${escapeHtml(e.data?.error || e.message)}</p>`;
+  }
+}
+
+document.getElementById('menu-add-btn').addEventListener('click', async () => {
+  const logEl = document.getElementById('menu-form-log');
+  const name = document.getElementById('menu-name').value.trim();
+  const price = document.getElementById('menu-price').value;
+  if (!name || price === '') {
+    logEl.className = 'log err';
+    logEl.textContent = 'Name and price are required.';
+    return;
+  }
+  try {
+    await api('/menu', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        price_cents: toCents(price),
+        description: document.getElementById('menu-desc').value.trim(),
+        tags: document.getElementById('menu-tags').value,
+        ingredients: document.getElementById('menu-ingredients').value,
+      }),
+    });
+    ['menu-name', 'menu-price', 'menu-desc', 'menu-tags', 'menu-ingredients'].forEach(
+      (id) => (document.getElementById(id).value = '')
+    );
+    logEl.className = 'log ok';
+    logEl.textContent = '✅ Menu item added.';
+    loadMenu();
+  } catch (e) {
+    logEl.className = 'log err';
+    logEl.textContent = '❌ ' + (e.data?.error || e.message);
+  }
+});
+
+document.getElementById('refresh-menu-btn').addEventListener('click', loadMenu);
+loadMenu();
+
+// ==========================================
+// EXTRA FEES (can be more than one)
+// ==========================================
+function renderFeeRow(fee) {
+  return `
+    <div class="fee-row ${fee.active ? '' : 'inactive'}" data-fee-id="${fee.id}">
+      <div class="f-grid">
+        <input class="f-label" type="text" value="${escapeHtml(fee.label)}" placeholder="Label">
+        <input class="f-amount" type="number" min="0" step="0.01" value="${cents(fee.amount_cents)}" placeholder="Amount">
+      </div>
+      <input class="f-desc" type="text" value="${escapeHtml(fee.description || '')}" placeholder="Description for buyer (optional)">
+      <div class="menu-row-foot">
+        <label>
+          <span class="switch"><input type="checkbox" class="f-active" ${fee.active ? 'checked' : ''}><span class="track"><span class="thumb"></span></span></span>
+          Active
+        </label>
+        <div style="display:flex;gap:8px">
+          <button class="danger-btn f-delete">🗑️ Delete</button>
+          <button class="ghost-btn f-save">💾 Save</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function wireFeeRowEvents() {
+  document.querySelectorAll('.fee-row').forEach((rowEl) => {
+    const id = rowEl.dataset.feeId;
+
+    rowEl.querySelector('.f-save').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      try {
+        await api(`/fees/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            label: rowEl.querySelector('.f-label').value.trim(),
+            description: rowEl.querySelector('.f-desc').value.trim(),
+            amount_cents: toCents(rowEl.querySelector('.f-amount').value),
+            active: rowEl.querySelector('.f-active').checked,
+          }),
+        });
+        loadFees();
+      } catch (err) {
+        alert(err.data?.error || err.message);
+        btn.disabled = false;
+      }
+    });
+
+    rowEl.querySelector('.f-delete').addEventListener('click', async () => {
+      const label = rowEl.querySelector('.f-label').value || 'this fee';
+      if (!confirm(`Delete "${label}"? Fees already charged on old invoices are not affected.`)) return;
+      try {
+        await api(`/fees/${id}`, { method: 'DELETE' });
+        loadFees();
+      } catch (err) {
+        alert(err.data?.error || err.message);
+      }
+    });
+  });
+}
+
+async function loadFees() {
+  const container = document.getElementById('fees-list');
+  try {
+    const { fees } = await api('/fees/all');
+    container.innerHTML = fees.length
+      ? fees.map(renderFeeRow).join('')
+      : '<p class="log">No extra fees yet. Add them using the form above.</p>';
+    wireFeeRowEvents();
+  } catch (e) {
+    container.innerHTML = `<p class="log err">❌ ${escapeHtml(e.data?.error || e.message)}</p>`;
+  }
+}
+
+document.getElementById('fee-add-btn').addEventListener('click', async () => {
+  const logEl = document.getElementById('fee-form-log');
+  const label = document.getElementById('fee-label').value.trim();
+  const amount = document.getElementById('fee-amount').value;
+  if (!label || amount === '') {
+    logEl.className = 'log err';
+    logEl.textContent = 'Label and amount are required.';
+    return;
+  }
+  try {
+    await api('/fees', {
+      method: 'POST',
+      body: JSON.stringify({
+        label,
+        amount_cents: toCents(amount),
+        description: document.getElementById('fee-desc').value.trim(),
+      }),
+    });
+    ['fee-label', 'fee-amount', 'fee-desc'].forEach((id) => (document.getElementById(id).value = ''));
+    logEl.className = 'log ok';
+    logEl.textContent = '✅ Fee added.';
+    loadFees();
+  } catch (e) {
+    logEl.className = 'log err';
+    logEl.textContent = '❌ ' + (e.data?.error || e.message);
+  }
+});
+
+document.getElementById('refresh-fees-btn').addEventListener('click', loadFees);
+loadFees();
+</script>
+</body>
+</html>
