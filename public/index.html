@@ -336,6 +336,38 @@
   color: #666;
   border-color: #ccc;
 }
+
+.menu-name-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;border:none;padding:0;margin:0 8px 4px 0;
+  font:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  cursor:pointer;box-shadow:none;border-radius:0;
+}
+.menu-name-toggle:hover{background:none;color:var(--accent);transform:none;box-shadow:none}
+.menu-name-toggle .chevron{
+  width:14px;height:14px;flex-shrink:0;color:var(--ink-soft);
+  transition:transform .2s ease;
+}
+.menu-name-toggle[aria-expanded="true"] .chevron{transform:rotate(180deg);color:var(--accent)}
+
+.menu-detail{
+  display:grid;grid-template-rows:0fr;
+  transition:grid-template-rows .25s ease;
+}
+.menu-detail.open{grid-template-rows:1fr}
+.menu-detail-inner{overflow:hidden;min-height:0}
+
+.ingredient-label{
+  font-size:11px;font-weight:700;color:var(--ink-soft);
+  text-transform:uppercase;letter-spacing:.04em;
+  margin:6px 0 6px;display:block;
+}
+.ingredient-pill{
+  display:inline-flex;align-items:center;
+  font-size:12px;background:var(--bg);border:1px solid var(--line);
+  padding:4px 11px;border-radius:999px;color:var(--ink-soft);
+  margin:0 6px 6px 0;
+}
 </style>
 </head>
 <body>

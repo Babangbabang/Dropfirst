@@ -342,26 +342,37 @@ function renderMenu() {
     row.className = 'menu-item';
     row.innerHTML = `
       <div>
-        <strong class="menu-name" data-detail-for="${item.id}" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px">${escapeHtml(item.name)}</strong>
+        <button type="button" class="menu-name-toggle" aria-expanded="false" data-detail-for="${item.id}">
+          <span>${escapeHtml(item.name)}</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
         <span class="pill">${cents(item.price_cents)} ${currency}</span>
         <div class="desc">${escapeHtml(item.description || '')}</div>
       </div>
       <button data-id="${item.id}">＋ Add</button>
     `;
-    row.querySelector('button').addEventListener('click', () => addToCart(item.id));
+    row.querySelector('button[data-id]').addEventListener('click', () => addToCart(item.id));
 
     const detail = document.createElement('div');
+    detail.className = 'menu-detail';
     detail.id = `menu-detail-${item.id}`;
-    detail.style.display = 'none';
-    detail.innerHTML =
-      item.ingredients && item.ingredients.length
-        ? `<div class="desc" style="padding:4px 0 12px">Ingredients: ${item.ingredients
-            .map((i) => `<span class="pill" style="margin-right:4px">${escapeHtml(i)}</span>`)
-            .join('')}</div>`
-        : `<div class="desc" style="padding:4px 0 12px;opacity:.6">Ingredient information not available.</div>`;
+    detail.innerHTML = `
+      <div class="menu-detail-inner">
+        <span class="ingredient-label">Ingredients</span>
+        ${
+          item.ingredients && item.ingredients.length
+            ? item.ingredients.map((i) => `<span class="ingredient-pill">${escapeHtml(i)}</span>`).join('')
+            : `<span class="desc" style="opacity:.6">Not available yet.</span>`
+        }
+      </div>
+    `;
 
-    row.querySelector('.menu-name').addEventListener('click', () => {
-      detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+    const toggleBtn = row.querySelector('.menu-name-toggle');
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = detail.classList.toggle('open');
+      toggleBtn.setAttribute('aria-expanded', String(isOpen));
     });
 
     wrap.appendChild(row);
