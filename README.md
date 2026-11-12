@@ -162,5 +162,12 @@ This is an alpha version built for a hackathon, not a production payments system
 
 - For a real deployment, funds would need to flow to the restaurant's own PayPal account (e.g. via PayPal for Platforms / Partner Referrals) rather than being captured to a single demo account.
 
+## Acknowledgements
+
+This project was built with the assistance of the following AI tools:
+
+- **Claude (Anthropic)** — Used for code review, refactoring suggestions, and documentation drafting.
+- **DeepSeek** — Used for brainstorming feature ideas and debugging assistance.
+
 ## License
 MIT — see LICENSE.
